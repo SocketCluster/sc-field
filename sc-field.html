@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../sc-socket/sc-socket.html">
+<script type="text/javascript" src="./json-stable-stringify.js"></script>
 
 <dom-module id="sc-field">
   <template>
@@ -12,6 +13,10 @@
       is: 'sc-field',
 
       properties: {
+        isReady: {
+          type: Boolean,
+          value: false
+        },
         resourceType: {
           type: String,
           observer: 'loadValueObserver'
@@ -40,7 +45,7 @@
       },
 
       attached: function () {
-        this.loadValue();
+        this.loadValueObserver();
       },
 
       loadValueObserver: function () {
@@ -99,6 +104,7 @@
 
           // Consume the realtime channel data as it arrives
           this.channel.watch(this.watcher);
+          this.isReady = true;
         }
       },
 
@@ -136,8 +142,7 @@
         var query = {
           type: this.resourceType,
           id: this.resourceId,
-          field: this.resourceField,
-          optimization: this.optimization
+          field: this.resourceField
         };
         if (this.optimization) {
           query.optimization = this.optimization;
