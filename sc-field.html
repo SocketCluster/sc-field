@@ -94,10 +94,14 @@
 
           if (!this.watcher) {
             this.watcher = function (packet) {
-              if (packet.type == 'delete') {
-                self.resourceValue = null;
+              if (packet == null) {
+                loadData();
               } else {
-                self.resourceValue = packet.value;
+                if (packet.type == 'delete') {
+                  self.resourceValue = null;
+                } else {
+                  self.resourceValue = packet.value;
+                }
               }
             };
           }
