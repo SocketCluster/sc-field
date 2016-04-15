@@ -60,16 +60,16 @@
         if (this.socket) {
           this.cleanupChannel();
 
-          var query = {
-            type: this.resourceType,
-            id: this.resourceId,
-            field: this.resourceField
-          };
-
           var sourcePath = 'crud>' + this.resourceType + '/' + this.resourceId + '/' + this.resourceField;
 
           // Get the initial value for the field model
           var loadData = function () {
+            var query = {
+              type: self.resourceType,
+              id: self.resourceId,
+              field: self.resourceField
+            };
+
             self.socket.emit('read', query, function (err, result) {
               if (err) {
                 throw new Error(err);
