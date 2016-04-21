@@ -79,16 +79,6 @@
             });
           };
 
-          // This is to account for socket reconnects - After recovering from a lost connection,
-          // we will re-fetch the whole value to make sure that we haven't missed any updates made to it
-          this.socket.on('connect', function (status) {
-            loadData();
-          });
-
-          if (this.socket.state == 'open') {
-            loadData();
-          }
-
           // Subscribe to further changes while this field model is active
           this.channel = this.socket.subscribe(sourcePath);
 
@@ -108,6 +98,16 @@
 
           // Consume the realtime channel data as it arrives
           this.channel.watch(this.watcher);
+
+          // This is to account for socket reconnects - After recovering from a lost connection,
+          // we will re-fetch the whole value to make sure that we haven't missed any updates made to it
+          this.socket.on('connect', function (status) {
+            loadData();
+          });
+
+          if (this.socket.state == 'open') {
+            loadData();
+          }
           this.isReady = true;
         }
       },
