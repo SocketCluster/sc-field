@@ -37,19 +37,16 @@
           type: Object
         },
         socket: {
-          type: Object
+          type: Object,
+          observer: 'loadValueObserver'
         },
         channel: {
           type: Object
         }
       },
 
-      attached: function () {
-        this.loadValueObserver();
-      },
-
       loadValueObserver: function () {
-        if (this.resourceType != null && this.resourceId != null && this.resourceField != null) {
+        if (this.socket && this.resourceType != null && this.resourceId != null && this.resourceField != null) {
           this.loadValue();
         }
       },
