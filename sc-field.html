@@ -8,7 +8,7 @@
   </template>
 
   <script>
-    // TODO: Add realtime option
+    // TODO: Add disableRealtime option.
     Polymer({
       is: 'sc-field',
 
@@ -59,30 +59,42 @@
 
           var sourcePath = 'crud>' + this.resourceType + '/' + this.resourceId + '/' + this.resourceField;
 
-          // Get the initial value for the field model
-          var loadData = function () {
-            var query = {
-              type: self.resourceType,
-              id: self.resourceId,
-              field: self.resourceField
+          if (!this.loadData) {
+            this.loadData = function () {
+              var query = {
+                type: self.resourceType,
+                id: self.resourceId,
+                field: self.resourceField
+              };
+
+              self.socket.emit('read', query, function (err, result) {
+                if (err) {
+                  throw new Error(err);
+                } else {
+                  self.resourceValue = result;
+                }
+              });
             };
+          }
 
-            self.socket.emit('read', query, function (err, result) {
-              if (err) {
-                throw new Error(err);
-              } else {
-                self.resourceValue = result;
-              }
-            });
-          };
+          if (this.channel) {
+            this.socket.subscribe(sourcePath);
+          } else {
+            // Subscribe to further changes while this field model is active.
+            this.channel = this.socket.subscribe(sourcePath);
+          }
 
-          // Subscribe to further changes while this field model is active
-          this.channel = this.socket.subscribe(sourcePath);
+          if (!this.resubscribe) {
+            // This is needed to recover from lost authentication.
+            this.resubscribe = function () {
+              self.socket.subscribe(sourcePath);
+            };
+          }
 
           if (!this.watcher) {
             this.watcher = function (packet) {
               if (packet == null) {
-                loadData();
+                self.loadData();
               } else {
                 if (packet.type == 'delete') {
                   self.resourceValue = null;
@@ -91,30 +103,37 @@
                 }
               }
             };
+            // Consume the realtime channel data as it arrives.
+            this.channel.watch(this.watcher);
           }
 
-          // Consume the realtime channel data as it arrives
-          this.channel.watch(this.watcher);
-
-          // This is to account for socket reconnects - After recovering from a lost connection,
-          // we will re-fetch the whole value to make sure that we haven't missed any updates made to it
-          this.socket.on('connect', function (status) {
-            loadData();
-          });
-
-          if (this.socket.state == 'open') {
-            loadData();
+          // Fetch data once the subscribe is successful.
+          this.channel.on('subscribe', this.loadData);
+          if (this.channel.state == 'subscribed') {
+            this.loadData();
           }
+          this.socket.on('authenticate', this.resubscribe);
+
           this.isReady = true;
         }
       },
 
       cleanupChannel: function () {
+        if (this.socket && this.resubscribe) {
+          this.socket.off('authenticate', this.resubscribe);
+        }
         if (this.channel) {
-          this.channel.unwatch(this.watcher);
+          if (this.loadData) {
+            this.channel.off('subscribe', this.loadData);
+          }
+          if (this.watcher) {
+            this.channel.unwatch(this.watcher);
+            delete this.watcher;
+          }
           if (!this.channel.watchers().length) {
             this.channel.unsubscribe();
           }
+          delete this.channel;
         }
       },
 
