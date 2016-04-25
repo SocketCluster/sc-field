@@ -33,6 +33,9 @@
           type: Object,
           notify: true
         },
+        resourceLoadedValue: {
+          type: Object
+        },
         optimization: {
           type: Object
         },
@@ -72,6 +75,7 @@
                   throw new Error(err);
                 } else {
                   self.resourceValue = result;
+                  self.resourceLoadedValue = result;
                 }
               });
             };
@@ -101,6 +105,7 @@
                 } else {
                   self.resourceValue = packet.value;
                 }
+                self.resourceLoadedValue = self.resourceValue;
               }
             };
             // Consume the realtime channel data as it arrives.
@@ -139,6 +144,12 @@
 
       detached: function () {
         this.cleanupChannel();
+      },
+
+      save: function (callback) {
+        if (this.resourceValue != this.resourceLoadedValue) {
+          this.update(this.resourceValue, callback);
+        }
       },
 
       update: function (newValue, callback) {
