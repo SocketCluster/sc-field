@@ -147,7 +147,9 @@
       },
 
       save: function (callback) {
-        if (this.resourceValue != this.resourceLoadedValue) {
+        if (this.resourceValue == this.resourceLoadedValue) {
+          callback && callback(null, this.resourceValue);
+        } else {
           this.update(this.resourceValue, callback);
         }
       },
