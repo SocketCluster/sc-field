@@ -21,7 +21,7 @@ See https://github.com/socketcluster/sc-sample-inventory for sample app which de
 In your DOM, you can add an sc-field tag anywhere inside your main Polymer <template></template> tags (example):
 
 ```html
-<sc-field id="product-qty" resource-type="Product" resource-id="{{productId}}" resource-field="qty" resource-value="{{productQty}}" optimization="{{optimization}}"></sc-field>
+<sc-field id="product-qty" resource-type="Product" resource-id="{{productId}}" resource-field="qty" resource-value="{{productQty}}"></sc-field>
 ```
 
 To save the current value to the server, you can setup a separate input field with a handler like this
@@ -50,7 +50,7 @@ saveValue: function (event) {
 This is what an sc-collection might look like:
 
 ```html
-<sc-collection id="category-products" realtime="{{realtime}}" resource-type="Product" resource-value="{{categoryProducts}}" resource-view="categoryView" resource-predicate-data="{{categoryId}}" resource-page-offset="{{pageOffsetStart}}" resource-page-size="{{pageSize}}" resource-count="{{itemCount}}"></sc-collection>
+<sc-collection id="category-products" realtime="{{realtime}}" resource-type="Product" resource-value="{{categoryProducts}}" resource-view="categoryView" resource-view-params="{{paramsObject}}" resource-page-offset="{{pageOffsetStart}}" resource-page-size="{{pageSize}}" resource-count="{{itemCount}}"></sc-collection>
 
 ```
 
@@ -76,19 +76,6 @@ The sc-field tag supports the following attributes:
 - ```resoure-id```: The ID of the document inside RethinkDB which this model will be bound to.
 - ```resource-field```: The specific property/field of the document which this sc-field tag is bound to for read/update operations.
 - ```resource-value```: The binding for the value from RethinkDB (updated in realtime) - This is the output of the component.
-- ```optimization```: An optional field which allows you to optimize the performance of update operations - The value should be an object which describes all the
-backend views/collections which may be affected by an update to this field. If you do not provide an ```optimization``` attribute, every collection which uses ```resource-type``` will receive change notifications. Optimizations are objects in the form:
-
-```js
-{
-  viewName: predicateData,
-  anotherViewName: predicateData2
-}
-```
-
-The keys of this object should refer to view names in your CRUD schema which may be affected by a change in this field's value (for example where a change in
-this field's value may affect the ordering of documents within a collection). The predicateData values can be of any type (String, Number, Object, etc...) - They allow you to
-map to specific instances of your views.
 
 See https://github.com/SocketCluster/sc-crud-rethink for more details about schemas and views.
 

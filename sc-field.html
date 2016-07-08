@@ -36,9 +36,6 @@
         resourceLoadedValue: {
           type: Object
         },
-        optimization: {
-          type: Object
-        },
         socket: {
           type: Object,
           observer: 'loadValueObserver'
@@ -54,13 +51,17 @@
         }
       },
 
+      getChannelName: function () {
+        return 'crud>' + this.resourceType + '/' + this.resourceId + '/' + this.resourceField;
+      },
+
       loadValue: function () {
         var self = this;
 
         if (this.socket) {
           this.cleanupChannel();
 
-          var sourcePath = 'crud>' + this.resourceType + '/' + this.resourceId + '/' + this.resourceField;
+          var sourcePath = this.getChannelName();
 
           if (!this.loadData) {
             this.loadData = function () {
@@ -91,7 +92,7 @@
           if (!this.resubscribe) {
             // This is needed to recover from lost authentication.
             this.resubscribe = function () {
-              self.socket.subscribe(sourcePath);
+              self.socket.subscribe(self.getChannelName());
             };
           }
 
@@ -102,6 +103,7 @@
               } else {
                 if (packet.type == 'delete') {
                   self.resourceValue = null;
+                  self.cleanupChannel();
                 } else {
                   self.resourceValue = packet.value;
                 }
@@ -163,9 +165,6 @@
           field: this.resourceField,
           value: newValue
         };
-        if (this.optimization) {
-          query.optimization = this.optimization;
-        }
         this.socket.emit('update', query, callback);
       },
 
@@ -177,9 +176,6 @@
           id: this.resourceId,
           field: this.resourceField
         };
-        if (this.optimization) {
-          query.optimization = this.optimization;
-        }
         this.socket.emit('delete', query, callback);
       }
     });
