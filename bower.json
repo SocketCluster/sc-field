@@ -1,6 +1,6 @@
 {
   "name": "sc-field",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "homepage": "https://github.com/SocketCluster/sc-field",
   "authors": [
     "Jonathan Gros-Dubois <grosjona@yahoo.com.au>"
@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "sc-json-stable-stringify": "1.1.x",
-    "polymer": "1.6.0",
-    "sc-socket": "*"
+    "polymer": "2.0.2",
+    "sc-socket": "^3.0.0"
   }
 }
