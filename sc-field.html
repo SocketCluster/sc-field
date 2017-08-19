@@ -13,10 +13,6 @@
       is: 'sc-field',
 
       properties: {
-        isReady: {
-          type: Boolean,
-          value: false
-        },
         resourceType: {
           type: String,
           observer: 'loadValueObserver'
@@ -42,11 +38,26 @@
         },
         channel: {
           type: Object
+        },
+        isReady: {
+          type: Boolean,
+          computed: 'areInputsReady(socket, resourceType, resourceId, resourceField)'
         }
       },
 
-      loadValueObserver: function () {
-        if (this.socket && this.resourceType != null && this.resourceId != null && this.resourceField != null) {
+      areInputsReady: function () {
+        for (var i in arguments) {
+          if (arguments.hasOwnProperty(i)) {
+            if (arguments[i] === undefined) {
+              return;
+            }
+          }
+        }
+        return true;
+      },
+
+      loadValueObserver: function (isReady) {
+        if (this.isReady) {
           this.loadValue();
         }
       },
@@ -120,8 +131,6 @@
             this.loadData();
           }
           this.socket.on('authenticate', this.resubscribe);
-
-          this.isReady = true;
         }
       },
 
